@@ -1,7 +1,7 @@
 class Rack::Tracker::Facebook < Rack::Tracker::Handler
   class Event < OpenStruct
     def write
-      ['track', self.id, to_h.except(:id).compact].to_json
+      ['track', self.id, to_h.except(:id).compact].map(&:to_json).join(', ')
     end
   end
 

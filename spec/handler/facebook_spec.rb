@@ -4,7 +4,7 @@ RSpec.describe Rack::Tracker::Facebook do
     subject { described_class.new({id: 'id', foo: 'bar'}) }
 
     describe '#write' do
-      specify { expect(subject.write).to eq(['track', 'id', {foo: 'bar'}].to_json) }
+      specify { expect(subject.write).to eq(['track', 'id', {foo: 'bar'}].map(&:to_json).join(', ')) }
     end
   end
 
@@ -21,12 +21,12 @@ RSpec.describe Rack::Tracker::Facebook do
     subject { described_class.new(env, custom_audience: 'custom_audience_id').render }
 
     it 'will push the tracking events to the queue' do
-      expect(subject).to match(%r{window._fbq.push\(\["addPixelId", "custom_audience_id"\]\)})
-      expect(subject).to match(%r{window._fbq.push\(\["track", "PixelInitialized", \{\}\]\)})
+      expect(subject).to match(%r{fbq\("init", "custom_audience_id"\)})
+      expect(subject).to match(%r{fbq\("track", "PageView"\)})
     end
 
     it 'will add the noscript fallback' do
-      expect(subject).to match(%r{https://www.facebook.com/tr\?id=custom_audience_id&amp;ev=PixelInitialized})
+      expect(subject).to match(%r{https://www.facebook.com/tr\?id=custom_audience_id&amp;ev=PageView})
     end
   end
 
@@ -37,7 +37,7 @@ RSpec.describe Rack::Tracker::Facebook do
         'facebook' =>
           [
             {
-              'id' => '123456789',
+              'id' => 'Purchase',
               'value' => '23',
               'currency' => 'EUR',
               'class_name' => 'Event'
@@ -49,11 +49,11 @@ RSpec.describe Rack::Tracker::Facebook do
     subject { described_class.new(env).render }
 
     it 'will push the tracking events to the queue' do
-      expect(subject).to match(%r{\["track","123456789",\{"value":"23","currency":"EUR"\}\]})
+      expect(subject).to match(%r{fbq\("track", "Purchase", \{"value":"23","currency":"EUR"\}\)})
     end
 
     it 'will add the noscript fallback' do
-      expect(subject).to match(%r{https://www.facebook.com/offsite_event.php\?id=123456789&amp;value=23&amp;currency=EUR})
+      expect(subject).to match(%r{tr\?id=&amp;ev=Purchase&amp;value=23&amp;currency=EUR})
     end
   end
 end
