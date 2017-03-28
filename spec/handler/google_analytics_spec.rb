@@ -215,6 +215,14 @@ RSpec.describe Rack::Tracker::GoogleAnalytics do
     end
   end
 
+  describe "with optimze" do
+    subject { described_class.new(env, tracker: 'happy', optimize: 'MSD-1D2ASDT').render }
+
+    it "will embed the optimize require with code" do
+      expect(subject).to match(%r{ga\('require', 'MSD-1D2ASDT'\)})
+    end
+  end
+
   describe "with advertising" do
     subject { described_class.new(env, tracker: 'happy', advertising: true).render }
 
