@@ -21,12 +21,30 @@ RSpec.describe Rack::Tracker::Facebook do
     subject { described_class.new(env, custom_audience: 'custom_audience_id').render }
 
     it 'will push the tracking events to the queue' do
-      expect(subject).to match(%r{fbq\("init", "custom_audience_id"\)})
+      expect(subject).to match(%r{fbq\("init", "custom_audience_id", {}\)})
       expect(subject).to match(%r{fbq\("track", "PageView"\)})
     end
 
     it 'will add the noscript fallback' do
       expect(subject).to match(%r{https://www.facebook.com/tr\?id=custom_audience_id&amp;ev=PageView})
+    end
+  end
+
+  describe 'with user_data' do
+    def env
+      {
+        'tracker_data' =>
+          {
+            em: 'edvinas@plateculture.com',
+            ph: '+370 000 000',
+            fn: 'edvinas'
+          }
+      }
+    end
+
+    subject { described_class.new(env, custom_audience: 'custom_audience_id').render }
+    it 'will have init with user data' do
+      expect(subject).to match(%r{"init", "custom_audience_id", {"em":"edvinas@plateculture.com","ph":"\+370 000 000","fn":"edvinas"}})
     end
   end
 

@@ -5,7 +5,7 @@
   t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
   document,'script','//connect.facebook.net/en_US/fbevents.js');
 
-  fbq("init", "<%= options[:custom_audience] %>");
+  fbq("init", "<%= options[:custom_audience] %>", <%= user_data %>);
   fbq("track", "PageView");
 </script>
 <noscript>

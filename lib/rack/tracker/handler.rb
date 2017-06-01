@@ -19,6 +19,11 @@ class Rack::Tracker::Handler
     events.map{ |ev| "#{self.class}::#{ev['class_name']}".constantize.new(ev.except('class_name')) }
   end
 
+  def user_data
+    data = env.fetch('tracker_data', {})
+    data.to_json
+  end
+
   def render
     raise NotImplementedError.new('needs implementation')
   end

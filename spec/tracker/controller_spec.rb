@@ -3,6 +3,7 @@ TestController = Struct.new(:env) do
 
   def index
     tracker do |t|
+      t.user_data em: 'edvinas@plateculture.com', ph: '+370 000 000', fn: 'edvinas'
       t.google_analytics :send, category: 'foo'
       t.google_analytics :ecommerce, {
         type: 'addTransaction',
@@ -35,7 +36,16 @@ RSpec.describe Rack::Tracker::Controller do
           controller.index
         }.to change {
           controller.env
-        }.from({}).to('tracker' => {'google_analytics' => [send, trx, item_foo, item_bar], 'facebook' => [fb_event]})
+        }.from({}).to(
+          'tracker_data' => {
+            em: 'edvinas@plateculture.com',
+            ph: '+370 000 000',
+            fn: 'edvinas'
+          },
+          'tracker' => {
+            'google_analytics' => [send, trx, item_foo, item_bar], 'facebook' => [fb_event]
+          }
+        )
       end
     end
   end

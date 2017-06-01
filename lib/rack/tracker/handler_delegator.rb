@@ -12,11 +12,17 @@ class Rack::Tracker::HandlerDelegator
   end
 
   def method_missing(method_name, *args, &block)
-    if respond_to?(method_name)
+    if method_name.to_sym == :user_data
+      write_data(*args)
+    elsif respond_to?(method_name)
       write_event(handler(method_name).track(method_name, *args, &block))
     else
       super
     end
+  end
+
+  def write_data(args)
+    self.env['tracker_data'] = args
   end
 
   def write_event(event)
